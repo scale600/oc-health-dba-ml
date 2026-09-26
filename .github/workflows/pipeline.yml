@@ -1,0 +1,57 @@
+name: data-pipeline
+
+on:
+  schedule:
+    - cron: "0 6 * * *"   # daily 06:00 UTC
+  workflow_dispatch: {}    # manual backfill
+
+permissions:
+  id-token: write   # OIDC -> Azure (azure/login)
+  contents: write   # commit generated data
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r src/collector/requirements.txt \
+                      -r src/etl/requirements.txt \
+                      -r src/ml/requirements.txt
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Collect (public API -> Blob)
+        run: python -m src.collector.collect
+
+      - name: Transform & load (Blob -> SQL)
+        run: python -m src.etl.load_providers
+
+      - name: ML (spatial hubs / archetypes / gaps)
+        run: |
+          python -m src.ml.spatial_hubs
+          python -m src.ml.archetypes
+          python -m src.ml.accessibility_gap
+
+      - name: Export (SQL -> static JSON)
+        run: python -m src.serve.export
+
+      - name: Commit generated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web/public/data/
+          git commit -m "chore(data): refresh dashboard data" || echo "no data changes"
+          git push

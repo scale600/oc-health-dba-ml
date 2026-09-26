@@ -1,0 +1,48 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+.eggs/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.mlflow/
+mlruns/
+*.sqlite
+*.sqlite3
+
+# --- Node / web ---
+node_modules/
+web/dist/
+web/.vite/
+web/*.tsbuildinfo
+
+# --- Secrets & env ---
+.env
+.env.local
+.env.*.local
+!/.env.example
+
+# --- Generated data (rebuilt by export.py) ---
+web/public/data/*.json
+web/public/data/*.geojson
+
+# --- Azure / infra ---
+.terraform/
+*.tfstate
+*.tfstate.*
+*.bicepparam
+*.tfvars
+
+# --- OS / editor ---
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# --- Local tooling ---
+.codegraph/
+.omo/
