@@ -44,5 +44,5 @@ web/public/data/*.geojson
 *.swp
 
 # --- Local tooling ---
-.codegraph/
+.codegraph
 .omo/
