@@ -18,6 +18,27 @@ export interface SitesGeoJSON {
   features: SiteFeature[];
 }
 
+export interface CityFeature {
+  type: "Feature";
+  geometry: { type: "Polygon" | "MultiPolygon"; coordinates: unknown };
+  properties: {
+    name: string;
+    type: "city" | "CDP";
+    site_count: number;
+  };
+}
+
+export interface CitiesGeoJSON {
+  type: "FeatureCollection";
+  features: CityFeature[];
+}
+
+export interface HubLegendEntry {
+  hub: number;
+  city: string;
+  count: number;
+}
+
 export interface Provider {
   provider_id: number;
   first_name: string | null;
@@ -29,6 +50,10 @@ export interface Provider {
 export interface Cluster {
   archetype: number;
   member_count: number;
+  dominant_specialty: string | null;
+  dominant_specialty_count: number;
+  dominant_language: string | null;
+  dominant_language_count: number;
 }
 
 export interface AccessibilityRow {
@@ -36,6 +61,8 @@ export interface AccessibilityRow {
   dimension: string;
   gap: number;
   nearest_km: number;
+  latitude: number;
+  longitude: number;
 }
 
 export interface LookupItem {

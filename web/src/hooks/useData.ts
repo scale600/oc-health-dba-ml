@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type {
   AccessibilityRow,
+  CitiesGeoJSON,
   Cluster,
   Lookups,
   Provider,
@@ -9,6 +10,7 @@ import type {
 
 interface Data {
   sites: SitesGeoJSON | null;
+  cities: CitiesGeoJSON | null;
   providers: Provider[];
   clusters: Cluster[];
   accessibility: AccessibilityRow[];
@@ -19,6 +21,7 @@ interface Data {
 
 const EMPTY: Data = {
   sites: null,
+  cities: null,
   providers: [],
   clusters: [],
   accessibility: [],
@@ -33,14 +36,16 @@ export function useData(): Data {
   useEffect(() => {
     Promise.all([
       fetch("/data/sites.geojson").then((r) => r.json()),
+      fetch("/data/oc_cities.geojson").then((r) => r.json()),
       fetch("/data/providers.json").then((r) => r.json()),
       fetch("/data/clusters.json").then((r) => r.json()),
       fetch("/data/accessibility.json").then((r) => r.json()),
       fetch("/data/lookups.json").then((r) => r.json()),
     ])
-      .then(([sites, providers, clusters, accessibility, lookups]) => {
+      .then(([sites, cities, providers, clusters, accessibility, lookups]) => {
         setState({
           sites,
+          cities,
           providers,
           clusters,
           accessibility,

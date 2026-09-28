@@ -29,6 +29,22 @@ export default function ClusterView({
           <div className="stat">
             Dominant gender: <strong>{dominantGender(providers, c.archetype)}</strong>
           </div>
+          <div className="stat">
+            Specialty:{" "}
+            <strong>
+              {c.dominant_specialty
+                ? `${c.dominant_specialty} (${c.dominant_specialty_count})`
+                : "n/a"}
+            </strong>
+          </div>
+          <div className="stat">
+            Language:{" "}
+            <strong>
+              {c.dominant_language
+                ? `${c.dominant_language} (${c.dominant_language_count})`
+                : "no language data"}
+            </strong>
+          </div>
         </div>
       ))}
     </div>

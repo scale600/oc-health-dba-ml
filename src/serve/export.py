@@ -59,7 +59,7 @@ def export_sites() -> int:
                 "plan_type": r["plan_type"],
                 "telehealth": r["telehealth_avail_flag"],
                 "cluster": r["hub_id"],
-                "is_noise": r["is_noise"],
+                "is_noise": int(r["is_noise"]),
             },
         }
         for r in rows
@@ -91,6 +91,24 @@ def export_providers() -> int:
     )
 
 
+def _dominant_label(
+    bridge_table: str, bridge_col: str, dim_table: str
+) -> dict[int, tuple[str | None, int]]:
+    """Most common label (specialty/language) per archetype via the bridge tables."""
+    sql = f"""
+        WITH ranked AS (
+            SELECT a.archetype, d.description AS label, COUNT(*) AS cnt,
+                   ROW_NUMBER() OVER (PARTITION BY a.archetype ORDER BY COUNT(*) DESC) AS rn
+            FROM ML_Provider_Archetype a
+            JOIN {bridge_table} b ON a.provider_id = b.provider_id
+            JOIN {dim_table} d ON b.{bridge_col} = d.code
+            GROUP BY a.archetype, d.description
+        )
+        SELECT archetype, label, cnt FROM ranked WHERE rn = 1
+    """
+    return {r["archetype"]: (r["label"], int(r["cnt"])) for r in _read_rows(sql)}
+
+
 def export_clusters() -> int:
     rows = _read_rows(
         """
@@ -100,15 +118,37 @@ def export_clusters() -> int:
         ORDER BY a.archetype
         """
     )
-    return _write(
-        "clusters.json",
-        [{"archetype": r["archetype"], "member_count": r["member_count"]} for r in rows],
-    )
+    specialties = _dominant_label("Bridge_Provider_Specialty", "specialty_code", "Dim_Specialty")
+    languages = _dominant_label("Bridge_Provider_Language", "language_code", "Dim_Language")
+    clusters = []
+    for r in rows:
+        arch = r["archetype"]
+        spec, spec_cnt = specialties.get(arch, (None, 0))
+        lang, lang_cnt = languages.get(arch, (None, 0))
+        clusters.append(
+            {
+                "archetype": arch,
+                "member_count": r["member_count"],
+                "dominant_specialty": spec,
+                "dominant_specialty_count": spec_cnt,
+                "dominant_language": lang,
+                "dominant_language_count": lang_cnt,
+            }
+        )
+    return _write("clusters.json", clusters)
 
 
 def export_accessibility() -> int:
     rows = _read_rows(
-        "SELECT zip_code, dimension, gap_flag, nearest_km FROM ML_Accessibility_Gap"
+        """
+        SELECT g.zip_code, g.dimension, g.gap_flag, g.nearest_km,
+               AVG(CAST(s.latitude AS FLOAT)) AS latitude,
+               AVG(CAST(s.longitude AS FLOAT)) AS longitude
+        FROM ML_Accessibility_Gap g
+        JOIN Dim_Site s ON LEFT(s.zip_code, 5) = g.zip_code
+        WHERE s.latitude IS NOT NULL
+        GROUP BY g.zip_code, g.dimension, g.gap_flag, g.nearest_km
+        """
     )
     return _write(
         "accessibility.json",
@@ -116,8 +156,10 @@ def export_accessibility() -> int:
             {
                 "zip": r["zip_code"],
                 "dimension": r["dimension"],
-                "gap": r["gap_flag"],
+                "gap": int(r["gap_flag"]),
                 "nearest_km": r["nearest_km"],
+                "latitude": r["latitude"],
+                "longitude": r["longitude"],
             }
             for r in rows
         ],
