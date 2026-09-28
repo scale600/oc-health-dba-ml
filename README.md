@@ -10,7 +10,7 @@
 
 A **DBA + BI + ML (machine learning)** project that turns the **Orange County Health Care Agency (OC HCA) Behavioral Health Plan (BHP) Provider Directory API** — public, no-auth JSON — into a star-schema data warehouse, unsupervised ML, and a live web dashboard.
 
-> **Live dashboard:** <https://oc-health-dba-ml.techcloudup.com> · **Data source:** `https://bhpproviderdirectory.ochca.com/api/v1/`
+> **Live dashboard:** <https://wonderful-forest-05492831e.2.azurestaticapps.net> · **Data source:** `https://bhpproviderdirectory.ochca.com/api/v1/`
 
 ---
 
@@ -39,7 +39,7 @@ flowchart LR
     E --> F[ML<br>HDBSCAN · k-medoids<br>gap model]
     F -.->|hubs · archetypes · gaps| E
     E --> G[Export<br>GeoJSON + KPI JSON]
-    G --> H[Cloudflare Pages<br>React dashboard]
+    G --> H[Azure Static Web Apps<br>React dashboard]
     H --> I[Live URL]
 ```
 
@@ -84,7 +84,7 @@ oc-health-dba-ml/
 │   │   └── ddl/               # 00_reset, 00_staging, 10_dim, 20_fact, 30_indexes, 40_ml
 │   ├── ml/                    # spatial_hubs, archetypes, accessibility_gap
 │   └── serve/                 # SQL -> static GeoJSON + KPI JSON
-├── web/                       # React + TS dashboard (Cloudflare Pages)
+├── web/                       # React + TS dashboard (Azure Static Web Apps)
 ├── .github/workflows/         # pipeline.yml (collect->export), deploy.yml
 └── docs/
     ├── api_reference.md       # verified upstream API schema
@@ -98,7 +98,7 @@ oc-health-dba-ml/
 
 ### Prerequisites
 
-- Python 3.11+ · Node 20+ · Azure account (SQL free offer, Blob Storage) · Cloudflare account
+- Python 3.11+ · Node 20+ · Azure account (SQL free offer, Blob Storage, Static Web Apps)
 
 ### 1. Verify upstream data
 
