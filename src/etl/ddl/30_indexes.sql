@@ -18,7 +18,10 @@ CREATE NONCLUSTERED INDEX IX_FactProviderSite_provider
 CREATE NONCLUSTERED INDEX IX_FactProviderSite_site
     ON dbo.Fact_Provider_Site (site_key);
 
--- Spatial index on Dim_Site.geo_point for distance queries
--- (feeds the ML-3 accessibility gap model).
-CREATE SPATIAL INDEX SIX_DimSite_geo
-    ON dbo.Dim_Site (geo_point);
+-- NOTE: A spatial index on Dim_Site.geo_point requires geo_point to be NOT NULL.
+-- Since geocoding coverage is ~95% (geo_point is nullable), the spatial index is
+-- deferred until after geocoding completes. With only ~147 sites, STDistance()
+-- queries are fast without an index. If coverage reaches 100%, run:
+--
+--   CREATE SPATIAL INDEX SIX_DimSite_geo ON dbo.Dim_Site (geo_point);
+
