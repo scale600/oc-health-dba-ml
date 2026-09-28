@@ -543,6 +543,10 @@ tr.gap td {
   color: var(--text);
 }
 
+.recharts-tooltip-item {
+  color: #c7d2fe !important;
+}
+
 @media (max-width: 700px) {
   .charts-grid {
     grid-template-columns: 1fr;
