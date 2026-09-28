@@ -33,17 +33,23 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Collect (public API -> Blob)
+      - name: Allow runner IP in SQL firewall
+        run: |
+          RUNNER_IP=$(curl -s https://api.ipify.org)
+          echo "runner ip: $RUNNER_IP"
+          az sql server firewall-rule create \
+            -g oc-health-dba-ml -s oc-health-dba-ml \
+            -n gh-runner \
+            --start-ip-address "$RUNNER_IP" --end-ip-address "$RUNNER_IP"
+
+      - name: Collect (public API)
         run: python -m src.collector.collect
 
-      - name: Transform & load (Blob -> SQL)
-        run: python -m src.etl.load_providers
+      - name: Transform & load (SQL)
+        run: python -m src.etl.run
 
       - name: ML (spatial hubs / archetypes / gaps)
-        run: |
-          python -m src.ml.spatial_hubs
-          python -m src.ml.archetypes
-          python -m src.ml.accessibility_gap
+        run: python -m src.ml.run
 
       - name: Export (SQL -> static JSON)
         run: python -m src.serve.export
@@ -55,3 +61,10 @@ jobs:
           git add web/public/data/
           git commit -m "chore(data): refresh dashboard data" || echo "no data changes"
           git push
+
+      - name: Remove runner IP from SQL firewall
+        if: always()
+        run: |
+          az sql server firewall-rule delete \
+            -g oc-health-dba-ml -s oc-health-dba-ml \
+            -n gh-runner 2>/dev/null || true
