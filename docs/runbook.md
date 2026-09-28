@@ -53,6 +53,14 @@ az sql db restore \
 2. `SELECT COUNT(*) FROM Fact_Provider_Site` on both — counts must match.
 3. Spot-check referential integrity on the restored copy.
 
+> **Last verified: 2026-09-28.** Restored `ocbh_provider` → `ocbh_provider_restored`
+> (point-in-time ~18:20 UTC) and compared row counts — all 10 key tables matched
+> (Dim_Provider 1851, Dim_Site 147, Fact_Provider_Site 2291, Dim_Specialty 142, Dim_Language 43,
+> Bridge_Provider_Specialty 7151, Bridge_Provider_Language 675, ML_Site_Hub 147,
+> ML_Provider_Archetype 1851, ML_Accessibility_Gap 44). Restored copy deleted after verification.
+> Note: the free-offer restore is slow (~5 min) and the CLI "DatabaseNameInUse" error appears
+> transiently while a prior restore is still creating — re-check `az sql db list` before retrying.
+
 ### Logical backup (portable fallback)
 
 ```bash
