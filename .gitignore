@@ -46,6 +46,7 @@ web/*.tsbuildinfo
 # --- Local tooling ---
 .codegraph
 .omo/
+.playwright-mcp/
 
 note.md
 checklist.md
