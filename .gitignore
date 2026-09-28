@@ -27,7 +27,7 @@ web/*.tsbuildinfo
 !/.env.example
 
 # --- Raw collector snapshots (regenerable) ---
-data/
+/data/
 
 # --- Azure / infra ---
 .terraform/
