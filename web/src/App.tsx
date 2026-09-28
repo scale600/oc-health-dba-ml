@@ -96,6 +96,12 @@ export default function App() {
       <header className="header">
         <h1>OC Medi-Cal Behavioral Health</h1>
         <p className="subtitle">Provider Clustering &amp; Accessibility Analysis</p>
+        <p className="description">
+          This dashboard maps 1,851 behavioral health providers across 147 Orange County service
+          sites, grouping them into 16 geographic service hubs and 4 workforce archetypes — and
+          flags 3 ZIP codes with limited access (≥10 km to the nearest site). Source: OC Health
+          Care Agency Behavioral Health Plan provider directory (public API).
+        </p>
       </header>
 
       <section className="kpi-row">

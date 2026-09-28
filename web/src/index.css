@@ -34,6 +34,14 @@ body {
   margin: 0.25rem 0 1rem;
 }
 
+.description {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: 760px;
+  margin: -0.5rem 0 1rem;
+}
+
 .kpi-row {
   display: flex;
   gap: 1rem;
