@@ -38,7 +38,6 @@ flowchart LR
 ```
 oc-health-dba-ml/
 ├── README.md
-├── note.md                    # master implementation plan (source of truth)
 ├── .env.example               # non-secret config placeholders
 ├── infra/terraform/           # Azure SQL (azapi free offer), Storage, firewall (IaC)
 ├── src/
@@ -100,7 +99,6 @@ cd web && npm install && npm run dev
 
 ## Documentation index
 
-- **Plan & acceptance criteria** — [`note.md`](note.md)
 - **Upstream API** — [`docs/api_reference.md`](docs/api_reference.md)
 - **Data model** — [`docs/data_dictionary.md`](docs/data_dictionary.md), [`docs/erd.md`](docs/erd.md)
 - **ML design** — [`docs/ml_design.md`](docs/ml_design.md)

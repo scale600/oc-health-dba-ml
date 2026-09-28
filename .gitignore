@@ -29,6 +29,7 @@ web/*.tsbuildinfo
 # --- Generated data (rebuilt by export.py) ---
 web/public/data/*.json
 web/public/data/*.geojson
+data/
 
 # --- Azure / infra ---
 .terraform/
@@ -46,3 +47,6 @@ web/public/data/*.geojson
 # --- Local tooling ---
 .codegraph
 .omo/
+
+note.md
+checklist.md
