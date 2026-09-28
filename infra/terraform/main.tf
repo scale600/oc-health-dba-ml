@@ -80,6 +80,15 @@ resource "azurerm_storage_container" "raw_json" {
   container_access_type = "private"
 }
 
+# --- Azure Static Web Apps (free tier) — serves the React dashboard ---
+resource "azurerm_static_web_app" "dashboard" {
+  name                = "oc-health-dba-ml"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = var.location
+  sku_tier            = "Free"
+  sku_size            = "Free"
+}
+
 # --- Outputs ---
 output "sql_server_fqdn" {
   description = "Fully-qualified domain name of the logical SQL server"
@@ -97,4 +106,9 @@ output "storage_account_name" {
 
 output "storage_container_name" {
   value = azurerm_storage_container.raw_json.name
+}
+
+output "static_web_app_url" {
+  description = "Default hostname of the Static Web App"
+  value       = azurerm_static_web_app.dashboard.default_host_name
 }

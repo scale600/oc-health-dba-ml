@@ -26,9 +26,7 @@ web/*.tsbuildinfo
 .env.*.local
 !/.env.example
 
-# --- Generated data (rebuilt by export.py) ---
-web/public/data/*.json
-web/public/data/*.geojson
+# --- Raw collector snapshots (regenerable) ---
 data/
 
 # --- Azure / infra ---
