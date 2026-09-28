@@ -104,6 +104,47 @@ export default function App() {
         </p>
       </header>
 
+      <details className="glossary">
+        <summary>About this data</summary>
+        <div className="glossary-body">
+          <p>
+            <strong>Behavioral health</strong> is care for mental health conditions (therapy,
+            counseling, psychiatric care) and substance use disorders (addiction treatment).
+          </p>
+          <p>
+            <strong>Plan type</strong> is the Medi-Cal delivery system a site belongs to:
+          </p>
+          <ul>
+            <li>
+              <strong>MHP — Mental Health Plan</strong>: county-run specialty mental health
+              services.
+            </li>
+            <li>
+              <strong>DMC — Drug Medi-Cal</strong>: substance use disorder (SUD) treatment
+              services.
+            </li>
+          </ul>
+          <p>
+            <strong>Telehealth</strong> means receiving care remotely (phone or video) rather than
+            in person:
+          </p>
+          <ul>
+            <li>
+              <strong>B — Both</strong>: offers both in-person and remote visits.
+            </li>
+            <li>
+              <strong>N — None</strong>: in-person visits only.
+            </li>
+          </ul>
+          <p>
+            <strong>Service hubs</strong> are groups of nearby sites (16 hubs).{" "}
+            <strong>Archetypes</strong> are groups of providers with similar characteristics (4
+            archetypes). <strong>Gap ZIPs</strong> are ZIP codes where the nearest site is 10 km or
+            farther (3 gaps).
+          </p>
+        </div>
+      </details>
+
       <section className="kpi-row">
         <div className="kpi">
           <span className="kpi-value">{kpis.providers.toLocaleString()}</span>
@@ -154,8 +195,8 @@ export default function App() {
             onChange={(e) => setFilters({ ...filters, planType: e.target.value })}
           >
             <option value={ALL}>All</option>
-            <option value="MHP">MHP</option>
-            <option value="DMC">DMC</option>
+            <option value="MHP">MHP — Mental Health Plan</option>
+            <option value="DMC">DMC — Drug Medi-Cal</option>
           </select>
         </label>
         <label className="filter-group">
@@ -165,8 +206,8 @@ export default function App() {
             onChange={(e) => setFilters({ ...filters, telehealth: e.target.value })}
           >
             <option value={ALL}>All</option>
-            <option value="B">Both</option>
-            <option value="N">None</option>
+            <option value="B">B — Both (in-person + telehealth)</option>
+            <option value="N">N — In-person only</option>
           </select>
         </label>
         <label className="filter-group grow">
