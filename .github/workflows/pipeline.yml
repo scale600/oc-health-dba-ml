@@ -28,7 +28,8 @@ jobs:
 
       - name: Install ODBC Driver 18 for SQL Server
         run: |
-          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+          curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --batch --yes --dearmor -o /tmp/microsoft-prod.gpg
+          sudo install -o root -g root -m 644 /tmp/microsoft-prod.gpg /usr/share/keyrings/microsoft-prod.gpg
           UBUNTU_VERSION=$(lsb_release -rs)
           curl -fsSL "https://packages.microsoft.com/config/ubuntu/${UBUNTU_VERSION}/prod.list" | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
