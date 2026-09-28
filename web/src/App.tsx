@@ -1,17 +1,20 @@
-import { useMemo, useState } from "react";
+import { lazy, Suspense, useMemo, useState } from "react";
 import { useData } from "./hooks/useData";
-import MapView from "./components/MapView";
-import ClusterView from "./components/ClusterView";
-import AccessibilityView from "./components/AccessibilityView";
 import { hubSummary, toTitleCase } from "./utils";
 import type { SitesGeoJSON } from "./types";
 
-type Tab = "map" | "clusters" | "accessibility";
+const MapView = lazy(() => import("./components/MapView"));
+const ClusterView = lazy(() => import("./components/ClusterView"));
+const AccessibilityView = lazy(() => import("./components/AccessibilityView"));
+const InsightsView = lazy(() => import("./components/InsightsView"));
+
+type Tab = "map" | "clusters" | "accessibility" | "insights";
 
 const TAB_LABELS: Record<Tab, string> = {
   map: "Map",
   clusters: "Clusters",
   accessibility: "Accessibility",
+  insights: "Insights",
 };
 
 interface Filters {
@@ -19,6 +22,8 @@ interface Filters {
   planType: string;
   telehealth: string;
   search: string;
+  hub: string;
+  showIsolated: boolean;
 }
 
 const ALL = "all";
@@ -30,6 +35,8 @@ function filterSites(sites: SitesGeoJSON | null, f: Filters): SitesGeoJSON | nul
     if (f.city !== ALL && p.city !== f.city) return false;
     if (f.planType !== ALL && p.plan_type !== f.planType) return false;
     if (f.telehealth !== ALL && p.telehealth !== f.telehealth) return false;
+    if (f.hub !== ALL && (p.cluster == null || String(p.cluster) !== f.hub)) return false;
+    if (!f.showIsolated && p.is_noise === 1) return false;
     if (f.search) {
       const q = f.search.toLowerCase();
       if (!(p.name ?? "").toLowerCase().includes(q)) return false;
@@ -47,6 +54,8 @@ export default function App() {
     planType: ALL,
     telehealth: ALL,
     search: "",
+    hub: ALL,
+    showIsolated: true,
   });
 
   const allSites = data.sites?.features ?? [];
@@ -210,6 +219,20 @@ export default function App() {
             <option value="N">N — In-person only</option>
           </select>
         </label>
+        <label className="filter-group">
+          <span className="filter-label">Hub</span>
+          <select
+            value={filters.hub}
+            onChange={(e) => setFilters({ ...filters, hub: e.target.value })}
+          >
+            <option value={ALL}>All hubs</option>
+            {hubLegend.map((h) => (
+              <option key={h.hub} value={String(h.hub)}>
+                Hub {h.hub} — {h.city}
+              </option>
+            ))}
+          </select>
+        </label>
         <label className="filter-group grow">
           <span className="filter-label">Search</span>
           <input
@@ -219,10 +242,22 @@ export default function App() {
             onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           />
         </label>
+        <label className="filter-check">
+          <input
+            type="checkbox"
+            checked={filters.showIsolated}
+            onChange={(e) => setFilters({ ...filters, showIsolated: e.target.checked })}
+          />
+          <span>Show isolated sites</span>
+        </label>
         <span className="filter-count">
           Showing {showing} of {kpis.sites} sites
         </span>
       </section>
+
+      {showing === 0 && (
+        <div className="empty">No sites match your filters. Try clearing one or more filters.</div>
+      )}
 
       <nav className="tabs">
         {(Object.keys(TAB_LABELS) as Tab[]).map((t) => (
@@ -237,18 +272,28 @@ export default function App() {
       </nav>
 
       <main className="content">
-        {tab === "map" && data.sites && data.cities && (
-          <MapView
-            sites={filteredSites ?? data.sites}
-            cities={data.cities}
-            gaps={gapRows}
-            hubLegend={hubLegend}
-          />
-        )}
-        {tab === "clusters" && (
-          <ClusterView clusters={data.clusters} providers={data.providers} />
-        )}
-        {tab === "accessibility" && <AccessibilityView rows={data.accessibility} />}
+        <Suspense fallback={<div className="skeleton skeleton-content" />}>
+          {tab === "map" && data.sites && data.cities && (
+            <MapView
+              sites={filteredSites ?? data.sites}
+              cities={data.cities}
+              gaps={gapRows}
+              hubLegend={hubLegend}
+            />
+          )}
+          {tab === "clusters" && (
+            <ClusterView clusters={data.clusters} providers={data.providers} />
+          )}
+          {tab === "accessibility" && <AccessibilityView rows={data.accessibility} />}
+          {tab === "insights" && data.sites && (
+            <InsightsView
+              cityStats={data.cityStats}
+              clusters={data.clusters}
+              sites={data.sites}
+              accessibility={data.accessibility}
+            />
+          )}
+        </Suspense>
       </main>
     </div>
   );

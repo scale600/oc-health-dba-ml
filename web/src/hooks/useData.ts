@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type {
   AccessibilityRow,
   CitiesGeoJSON,
+  CityStat,
   Cluster,
   Lookups,
   Provider,
@@ -15,6 +16,7 @@ interface Data {
   clusters: Cluster[];
   accessibility: AccessibilityRow[];
   lookups: Lookups | null;
+  cityStats: CityStat[];
   loading: boolean;
   error: string | null;
 }
@@ -26,6 +28,7 @@ const EMPTY: Data = {
   clusters: [],
   accessibility: [],
   lookups: null,
+  cityStats: [],
   loading: true,
   error: null,
 };
@@ -41,8 +44,9 @@ export function useData(): Data {
       fetch("/data/clusters.json").then((r) => r.json()),
       fetch("/data/accessibility.json").then((r) => r.json()),
       fetch("/data/lookups.json").then((r) => r.json()),
+      fetch("/data/city_stats.json").then((r) => r.json()),
     ])
-      .then(([sites, cities, providers, clusters, accessibility, lookups]) => {
+      .then(([sites, cities, providers, clusters, accessibility, lookups, cityStats]) => {
         setState({
           sites,
           cities,
@@ -50,6 +54,7 @@ export function useData(): Data {
           clusters,
           accessibility,
           lookups,
+          cityStats,
           loading: false,
           error: null,
         });

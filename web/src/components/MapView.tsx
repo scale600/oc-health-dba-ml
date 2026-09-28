@@ -62,6 +62,35 @@ function choroplethExpression(): maplibregl.ExpressionSpecification {
   ] as unknown as maplibregl.ExpressionSpecification;
 }
 
+function citiesBounds(cities: CitiesGeoJSON): [[number, number], [number, number]] | null {
+  let minLng = Infinity;
+  let minLat = Infinity;
+  let maxLng = -Infinity;
+  let maxLat = -Infinity;
+  const visit = (c: unknown): void => {
+    if (
+      Array.isArray(c) &&
+      c.length === 2 &&
+      typeof c[0] === "number" &&
+      typeof c[1] === "number"
+    ) {
+      const [lng, lat] = c as [number, number];
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    } else if (Array.isArray(c)) {
+      for (const x of c) visit(x);
+    }
+  };
+  for (const f of cities.features) visit(f.geometry.coordinates);
+  if (!isFinite(minLng)) return null;
+  return [
+    [minLng, minLat],
+    [maxLng, maxLat],
+  ];
+}
+
 interface MapViewProps {
   sites: SitesGeoJSON;
   cities: CitiesGeoJSON;
@@ -72,6 +101,7 @@ interface MapViewProps {
 export default function MapView({ sites, cities, gaps, hubLegend }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const boundsRef = useRef<[[number, number], [number, number]] | null>(null);
 
   // Mount once: create map, add sources + layers + handlers.
   useEffect(() => {
@@ -130,7 +160,21 @@ export default function MapView({ sites, cities, gaps, hubLegend }: MapViewProps
         type: "circle",
         source: "sites",
         paint: {
-          "circle-radius": 5,
+          "circle-radius": [
+            "interpolate",
+            ["linear"],
+            ["get", "provider_count"],
+            1,
+            3,
+            5,
+            5,
+            15,
+            7,
+            40,
+            10,
+            80,
+            13,
+          ],
           "circle-color": colorExpression(),
           "circle-stroke-width": 1,
           "circle-stroke-color": "#000000",
@@ -256,6 +300,10 @@ export default function MapView({ sites, cities, gaps, hubLegend }: MapViewProps
       map.on("mouseleave", "cities-fill", () => {
         map.getCanvas().style.cursor = "";
       });
+
+      const b = citiesBounds(cities);
+      boundsRef.current = b;
+      if (b) map.fitBounds(b, { padding: 40 });
     });
 
     return () => {
@@ -273,9 +321,17 @@ export default function MapView({ sites, cities, gaps, hubLegend }: MapViewProps
     src?.setData(sites);
   }, [sites]);
 
+  const handleReset = () => {
+    const map = mapRef.current;
+    if (map && boundsRef.current) map.fitBounds(boundsRef.current, { padding: 40 });
+  };
+
   return (
     <div className="map-wrap">
       <div ref={containerRef} className="map" />
+      <button className="reset-view" onClick={handleReset} type="button">
+        Reset view
+      </button>
       <div className="legend">
         <div className="legend-title">Service hubs</div>
         {hubLegend.map((h) => (

@@ -10,6 +10,7 @@ export interface SiteFeature {
     telehealth: string | null;
     cluster: number | null;
     is_noise: number;
+    provider_count: number;
   };
 }
 
@@ -63,6 +64,12 @@ export interface AccessibilityRow {
   nearest_km: number;
   latitude: number;
   longitude: number;
+}
+
+export interface CityStat {
+  city: string;
+  site_count: number;
+  provider_count: number;
 }
 
 export interface LookupItem {

@@ -41,9 +41,15 @@ def export_sites() -> int:
     rows = _read_rows(
         """
         SELECT s.site_id, s.name, s.city, s.zip_code, s.latitude, s.longitude,
-               s.plan_type, s.telehealth_avail_flag, h.hub_id, h.is_noise
+               s.plan_type, s.telehealth_avail_flag, h.hub_id, h.is_noise,
+               pc.provider_count
         FROM Dim_Site s
         LEFT JOIN ML_Site_Hub h ON s.site_id = h.site_id
+        LEFT JOIN (
+            SELECT site_key, COUNT(*) AS provider_count
+            FROM Fact_Provider_Site
+            GROUP BY site_key
+        ) pc ON pc.site_key = s.site_key
         WHERE s.latitude IS NOT NULL
         """
     )
@@ -60,6 +66,7 @@ def export_sites() -> int:
                 "telehealth": r["telehealth_avail_flag"],
                 "cluster": r["hub_id"],
                 "is_noise": int(r["is_noise"]),
+                "provider_count": int(r["provider_count"] or 0),
             },
         }
         for r in rows
@@ -181,12 +188,38 @@ def export_lookups() -> int:
     return _write("lookups.json", data)
 
 
+def export_city_stats() -> int:
+    rows = _read_rows(
+        """
+        SELECT s.city,
+               COUNT(DISTINCT s.site_id) AS site_count,
+               COUNT(DISTINCT f.provider_key) AS provider_count
+        FROM Dim_Site s
+        LEFT JOIN Fact_Provider_Site f ON f.site_key = s.site_key
+        WHERE s.city IS NOT NULL
+        GROUP BY s.city
+        """
+    )
+    return _write(
+        "city_stats.json",
+        [
+            {
+                "city": r["city"],
+                "site_count": int(r["site_count"]),
+                "provider_count": int(r["provider_count"]),
+            }
+            for r in rows
+        ],
+    )
+
+
 def main() -> None:
     print("sites:", export_sites())
     print("providers:", export_providers())
     print("clusters:", export_clusters())
     print("accessibility:", export_accessibility())
     print("lookups:", export_lookups())
+    print("city_stats:", export_city_stats())
     print("done ->", OUT_DIR)
 
 
