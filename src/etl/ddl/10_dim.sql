@@ -20,7 +20,7 @@ CREATE TABLE dbo.Dim_Provider (
     first_name             NVARCHAR(100) NULL,
     middle_name            NVARCHAR(100) NULL,
     last_name              NVARCHAR(100) NULL,
-    gender_code            CHAR(1)       NULL,
+    gender_code            VARCHAR(8)    NULL,
     npi                    CHAR(10)      NULL,
     english_fluency_flag   CHAR(1)       NULL,
     cultural_training_flag CHAR(1)       NULL,

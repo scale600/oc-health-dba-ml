@@ -19,7 +19,7 @@
 | provider_key | INT IDENTITY PK | — |
 | provider_id | INT UNIQUE | `id` |
 | first_name / middle_name / last_name | NVARCHAR(100) | `firstName` / `middleName` / `lastName` |
-| gender_code | CHAR(1) | `gender` |
+| gender_code | VARCHAR(8) | `gender` (F/M/U/AG/MTF) |
 | npi | CHAR(10) | `npi` |
 | english_fluency_flag | CHAR(1) | `engFluency` |
 | cultural_training_flag | CHAR(1) | `culturalTraining` |
