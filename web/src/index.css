@@ -24,9 +24,43 @@ body {
   padding: 1.5rem;
 }
 
+.header {
+  position: relative;
+}
+
+.header-links {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.icon-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  color: var(--muted);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.icon-link:hover {
+  color: var(--text);
+  background: var(--panel);
+}
+
+.icon-link svg {
+  width: 22px;
+  height: 22px;
+}
+
 .header h1 {
   margin: 0;
   font-size: 1.5rem;
+  padding-right: 140px;
 }
 
 .subtitle {
