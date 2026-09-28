@@ -18,10 +18,7 @@ CREATE NONCLUSTERED INDEX IX_FactProviderSite_provider
 CREATE NONCLUSTERED INDEX IX_FactProviderSite_site
     ON dbo.Fact_Provider_Site (site_key);
 
--- NOTE: A spatial index on Dim_Site.geo_point requires geo_point to be NOT NULL.
--- Since geocoding coverage is ~95% (geo_point is nullable), the spatial index is
--- deferred until after geocoding completes. With only ~147 sites, STDistance()
--- queries are fast without an index. If coverage reaches 100%, run:
---
+-- SQL Server spatial indexes require a NOT NULL geography column. geo_point is
+-- nullable (geocoding coverage ~95%), so the index is created after geocoding:
 --   CREATE SPATIAL INDEX SIX_DimSite_geo ON dbo.Dim_Site (geo_point);
 
